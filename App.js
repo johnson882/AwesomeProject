@@ -2,15 +2,21 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default class App extends React.Component {
-  render() {
+  componentDidMount(){
+    console.log("before")
+   //debugger
+    console.log("after")
+  }
+  render() {  //console.log("before")
     return (
       <View style={styles.container}>
         <Text>Hello world!!!</Text>
-        <Text>Welcome to the world of react native! HELLO STACY</Text>
+        <Text>Welcome to the world of react native!</Text>
         <Text>responce test</Text>
 
       </View>
     );
+  //  console.log("hello!")
   }
 }
 
