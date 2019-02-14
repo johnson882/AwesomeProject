@@ -12,7 +12,7 @@ export default class App extends React.Component {
       <View style={styles.container}>
         <Text>Hello world!!!</Text>
         <Text>Welcome to the world of react native!</Text>
-        <Text>responce test</Text>
+        
 
       </View>
     );
