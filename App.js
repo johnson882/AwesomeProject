@@ -1,5 +1,8 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react'
+import { View } from 'react-native'
+import AddEntry from './components/AddEntry'
+
+
 
 export default class App extends React.Component {
   componentDidMount(){
@@ -9,22 +12,11 @@ export default class App extends React.Component {
   }
   render() {  //console.log("before")
     return (
-      <View style={styles.container}>
-        <Text>Hello world!!!</Text>
-        <Text>Welcome to the world of react native!</Text>
-        
+      <View >
 
+     <AddEntry />
       </View>
     );
   //  console.log("hello!")
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
