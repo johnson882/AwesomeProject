@@ -1,4 +1,4 @@
-/ utils/_calendar.js
+// utils/_calendar.js
 
 import { AsyncStorage } from 'react-native'
 import { getMetricMetaInfo, timeToString } from './helpers'
