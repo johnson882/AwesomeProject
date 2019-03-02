@@ -1,17 +1,17 @@
 import React, { Component } from 'react'
-import { View, Text, ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native'
+import { View, Text, ActivityIndicator, TouchableOpacity, StyleSheet, Animated } from 'react-native'
 import { Foundation } from '@expo/vector-icons'
 import { purple, white } from '../utils/colors'
-import { Location, Permissions} from 'expo'
-import {CalculateDirection} from '../utils/helpers'
+import { Location, Permissions } from 'expo'
+import { calculateDirection } from '../utils/helpers'
 
 export default class Live extends Component {
   state = {
-    coords: 'granted',
-    status: 'granted',
-    direction: 'North'
+    coords: null,
+    status: null,
+    direction: '',
+    bounceValue: new Animated.Value(1),
   }
-
   componentDidMount () {
     Permissions.getAsync(Permissions.LOCATION)
       .then(({ status }) => {
@@ -38,16 +38,23 @@ export default class Live extends Component {
       })
       .catch((error) => console.warn('error asking Location permission: ', error))
   }
-    setLocation = () => {
-      Location.watchPositionAsync({
-        enableHighAccuracy: true,
-        timeInterval: 1,
-        distanceInterval: 1,
-      }, ({ coords }) => {
-        const newDirection = calculateDirection(coords.heading)
-        const { direction, bounceValue } = this.state
+  setLocation = () => {
+    Location.watchPositionAsync({
+      enableHighAccuracy: true,
+      timeInterval: 1,
+      distanceInterval: 1,
+    }, ({ coords }) => {
+      const newDirection = calculateDirection(coords.heading)
+      const { direction, bounceValue } = this.state
 
-        this.setState(() => ({
+      if (newDirection !== direction) {
+        Animated.sequence([
+          Animated.timing(bounceValue, { duration: 200, toValue: 1.04}),
+          Animated.spring(bounceValue, { toValue: 1, friction: 4})
+        ]).start()
+      }
+
+      this.setState(() => ({
         coords,
         status: 'granted',
         direction: newDirection,
@@ -55,10 +62,12 @@ export default class Live extends Component {
     })
   }
   render() {
-    const { status, coords, direction } = this.state
+    const { status, coords, direction, bounceValue } = this.state
+
     if (status === null) {
       return <ActivityIndicator style={{marginTop: 30}}/>
     }
+
     if (status === 'denied') {
       return (
         <View style={styles.center}>
@@ -88,11 +97,12 @@ export default class Live extends Component {
 
     return (
       <View style={styles.container}>
-      <View style={styles.directionContainer}>
+        <View style={styles.directionContainer}>
           <Text style={styles.header}>Youre heading</Text>
-          <Text style={styles.direction}>
-          {direction}  North
-          </Text>
+          <Animated.Text
+            style={[styles.direction, {transform: [{scale: bounceValue}]}]}>
+              {direction}
+          </Animated.Text>
         </View>
         <View style={styles.metricContainer}>
           <View style={styles.metric}>
@@ -100,7 +110,7 @@ export default class Live extends Component {
               Altitude
             </Text>
             <Text style={[styles.subHeader, {color: white}]}>
-              {Math.round(coords.altitude * 3.2808)} feet
+              {Math.round(coords.altitude * 3.2808)} Feet
             </Text>
           </View>
           <View style={styles.metric}>
@@ -115,9 +125,7 @@ export default class Live extends Component {
       </View>
     )
   }
-
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -141,38 +149,37 @@ const styles = StyleSheet.create({
     color: white,
     fontSize: 20,
   },
-
-directionContainer: {
- flex: 1,
- justifyContent: 'center',
-},
-header: {
- fontSize: 35,
- textAlign: 'center',
-},
-direction: {
- color: purple,
- fontSize: 120,
- textAlign: 'center',
-},
-metricContainer: {
- flexDirection: 'row',
- justifyContent: 'space-around',
- backgroundColor: purple,
-},
-metric: {
- flex: 1,
- paddingTop: 15,
- paddingBottom: 15,
- backgroundColor: 'rgba(255, 255, 255, 0.1)',
- marginTop: 20,
- marginBottom: 20,
- marginLeft: 10,
- marginRight: 10,
-},
-subHeader: {
- fontSize: 25,
- textAlign: 'center',
- marginTop: 5,
-},
+  directionContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  header: {
+    fontSize: 35,
+    textAlign: 'center',
+  },
+  direction: {
+    color: purple,
+    fontSize: 120,
+    textAlign: 'center',
+  },
+  metricContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: purple,
+  },
+  metric: {
+    flex: 1,
+    paddingTop: 15,
+    paddingBottom: 15,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginTop: 20,
+    marginBottom: 20,
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  subHeader: {
+    fontSize: 25,
+    textAlign: 'center',
+    marginTop: 5,
+  },
 })
